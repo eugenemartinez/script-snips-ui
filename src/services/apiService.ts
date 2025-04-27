@@ -162,10 +162,15 @@ export async function getScriptsByIds(ids: string[]): Promise<ScriptSnip[]> {
         return Promise.resolve([]); // Return empty array immediately if no IDs
     }
     try {
-        const params = new URLSearchParams({
-            ids: ids.join(','), // Join IDs into a comma-separated string
-        });
-        const response = await apiClient.get<ScriptSnip[]>('/scripts/batch', { params });
+        // --- FIX: Change from GET with query params to POST with request body ---
+        // const params = new URLSearchParams({
+        //     ids: ids.join(','), // Join IDs into a comma-separated string
+        // });
+        // const response = await apiClient.get<ScriptSnip[]>('/scripts/batch', { params });
+
+        // Send IDs in the request body as an object { ids: [...] }
+        const response = await apiClient.post<ScriptSnip[]>('/scripts/batch', { ids });
+        // --- End FIX ---
         return response.data;
     } catch (error) {
         throw new Error(formatError(error));

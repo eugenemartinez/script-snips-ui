@@ -1,5 +1,10 @@
 {
   "files": [],
+  // Add this block just to silence root warnings (optional)
+  "compilerOptions": {
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }

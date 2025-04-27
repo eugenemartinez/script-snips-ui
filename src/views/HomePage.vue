@@ -130,7 +130,7 @@
   </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue'; // Make sure ref is imported
 import { useRouter } from 'vue-router';
 // API Service
 import { getRandomScript, createScript, getRandomScripts } from '../services/apiService';
@@ -157,8 +157,7 @@ const randomScriptFetchError = ref<string | null>(null); // New state for fetch 
 // Add Script Modal Feature
 const showAddScriptModal = ref(false);
 const isSubmittingForm = ref(false);
-const formSubmissionError = ref<string | null>(null); // This state will be cleared by the event
-
+const formSubmissionError = ref<string | null>(null);
 
 // --- Carousel State ---
 const carouselScripts = ref<ScriptSnip[]>([]);
@@ -254,7 +253,6 @@ const handleFormSubmit = async (formData: ScriptFormData) => {
   try {
     // createScript now expects the imported ScriptFormData type
     const newScript = await createScript(formData);
-    console.log('Script created successfully:', newScript);
     closeAddScriptModal();
     toast.success('Script added successfully!');
     router.push(`/scripts/${newScript.id}`);
@@ -274,7 +272,6 @@ onMounted(() => {
 
     // Set up interval to refresh the carousel scripts periodically
     carouselInterval.value = setInterval(() => {
-        console.log('Refreshing carousel scripts...'); // Log interval trigger
         fetchCarouselScripts();
     }, CAROUSEL_REFRESH_INTERVAL);
 });
@@ -283,7 +280,6 @@ onUnmounted(() => {
     // Clear interval when component is unmounted to prevent memory leaks
     if (carouselInterval.value) {
         clearInterval(carouselInterval.value);
-        console.log('Carousel interval cleared.'); // Log interval clear
     }
 });
 

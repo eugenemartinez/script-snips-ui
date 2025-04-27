@@ -431,7 +431,6 @@ watch(() => props.id, (newId, oldId) => {
   // Refetch script details when the ID prop changes
   // Avoid refetching if the ID hasn't actually changed (e.g., initial load handled by onMounted)
   if (newId && newId !== oldId) {
-    console.log(`Route ID changed from ${oldId} to ${newId}, refetching...`); // Optional logging
     fetchScriptDetails();
   }
 });

@@ -227,7 +227,6 @@ const fetchScripts = async (page = 1, append = false) => {
 
          // If the content still doesn't fill the screen AND there are more pages, load more.
          if (!isScrollable && canLoadMore) {
-             console.log("Content doesn't fill screen after fetch, triggering loadMoreScripts...");
              // Use setTimeout to ensure this runs after the current execution context
              // and prevents potential stack overflow if checks happen too rapidly.
              setTimeout(() => {
@@ -270,7 +269,6 @@ const loadMoreScripts = () => {
   if (isLoadingMore.value || isLoading.value || currentPage.value >= totalPages.value) {
     return;
   }
-  console.log(`Loading page ${currentPage.value + 1}`);
   // Pass current search and sort state when loading more
   fetchScripts(currentPage.value + 1, true);
 };
