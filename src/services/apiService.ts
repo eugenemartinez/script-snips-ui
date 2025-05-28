@@ -1,4 +1,4 @@
-import axios, { AxiosError } from 'axios'; // Import axios and AxiosError
+import axios, { type AxiosError, type AxiosResponse } from 'axios'; // Import axios and AxiosError
 
 // --- Interfaces ---
 
@@ -51,14 +51,40 @@ const apiClient = axios.create({
     },
 });
 
-// --- Error Handling Helper ---
+// Helper to format error messages
 function formatError(error: unknown): string {
     if (axios.isAxiosError(error)) {
-        const axiosError = error as AxiosError<any>;
-        if (axiosError.response?.data?.message) {
-            return axiosError.response.data.message;
+        const axiosError = error as AxiosError<any>; // Use <any> for response.data flexibility
+        const responseData = axiosError.response?.data;
+
+        // --- CRUCIAL CONSOLE LOGS ---
+        console.debug('Axios error response object:', axiosError.response);
+        console.debug('Axios error response data (responseData) from formatError:', responseData);
+        console.debug('Type of responseData:', typeof responseData);
+        // --- END CRUCIAL LOGS ---
+
+        if (responseData) {
+            // If responseData is a non-empty string, use it directly
+            if (typeof responseData === 'string' && responseData.trim() !== '') {
+                return responseData;
+            }
+            // If responseData is an object, try common message property names
+            if (typeof responseData === 'object' && responseData !== null) {
+                const messageCandidates = [
+                    responseData.message,    // Standard for AppError
+                    responseData.error,      // Common alternative
+                    responseData.detail,     // Another common alternative
+                    responseData.msg         // Yet another
+                ];
+                for (const candidate of messageCandidates) {
+                    if (typeof candidate === 'string' && candidate.trim() !== '') {
+                        return candidate; // Return the first valid candidate
+                    }
+                }
+            }
         }
-        return axiosError.message || axiosError.response?.statusText || 'An unknown API error occurred';
+        // Fallback to Axios's own message or status text if no specific message is found
+        return axiosError.message || axiosError.response?.statusText || 'An API error occurred';
     }
     if (error instanceof Error) {
         return error.message;
@@ -182,15 +208,18 @@ export async function getScriptsByIds(ids: string[]): Promise<ScriptSnip[]> {
  * Creates a new script snippet.
  * Uses the ScriptFormData interface for the payload.
  */
-export async function createScript(scriptData: ScriptFormData): Promise<ScriptSnip> {
-     try {
-        const response = await apiClient.post<ScriptSnip>('/scripts', scriptData);
+export const createScript = async (scriptData: ScriptFormData): Promise<ScriptSnip> => {
+    try {
+        const response: AxiosResponse<ScriptSnip> = await apiClient.post('/scripts', scriptData);
         return response.data;
     } catch (error) {
-        console.error("Failed to create script:", formatError(error));
-        throw new Error(formatError(error));
+        // Log the original error structure for deeper debugging if needed
+        // console.error("Original error in createScript:", error);
+        const formattedMessage = formatError(error);
+        console.error("Failed to create script (formatted):", formattedMessage);
+        throw new Error(formattedMessage); // Throw an error with the formatted message
     }
-}
+};
 
 /**
  * Updates an existing script snippet.

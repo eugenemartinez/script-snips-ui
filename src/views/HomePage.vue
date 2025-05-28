@@ -251,16 +251,21 @@ const handleFormSubmit = async (formData: ScriptFormData) => {
   isSubmittingForm.value = true;
   formSubmissionError.value = null;
   try {
-    // createScript now expects the imported ScriptFormData type
     const newScript = await createScript(formData);
-    closeAddScriptModal();
+    showAddScriptModal.value = false;
     toast.success('Script added successfully!');
     router.push(`/scripts/${newScript.id}`);
-
   } catch (error: any) {
     console.error("Failed to submit script:", error);
-    formSubmissionError.value = error.message || 'Failed to add script. Please try again.';
-    toast.error(`Error adding script: ${formSubmissionError.value}`);
+    let displayMessage = error.message || 'Failed to add script. Please try again.';
+
+    // Check for the specific backend message to customize it
+    if (error.message && error.message.includes("Database limit reached")) {
+      displayMessage = "We're unable to add new scripts at this time as our system is at full capacity. Please try again later.";
+    }
+
+    formSubmissionError.value = displayMessage;
+    toast.error(displayMessage); // Use the (potentially customized) displayMessage directly for the toast
   } finally {
     isSubmittingForm.value = false;
   }
